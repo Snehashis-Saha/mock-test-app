@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-6">
+
+	<h1 class="text-3xl font-bold mb-4">Result</h1>
+
+	<h2 id="score" class="text-xl mb-2"></h2>
+	<h3 id="accuracy" class="text-lg mb-4"></h3>
+
+	<h2 class="text-xl font-bold">Subject Analysis</h2>
+	<div id="subjects" class="mt-2"></div>
+
+	<script>
+		const answers = JSON.parse(localStorage.getItem('answers')) || {};
+		const questions = JSON.parse(localStorage.getItem('questions')) || [];
+
+		let score = 0;
+		let subjectStats = {};
+
+		questions.forEach((q) => {
+			let userAns = answers[q.id];
+
+			if (userAns === q.correct) {
+				score++;
+			}
+
+			if (!subjectStats[q.subject]) {
+				subjectStats[q.subject] = { correct: 0, total: 0 };
+			}
+
+			subjectStats[q.subject].total++;
+
+			if (userAns === q.correct) {
+				subjectStats[q.subject].correct++;
+			}
+		});
+
+		let accuracy = questions.length
+			? ((score / questions.length) * 100).toFixed(2)
+			: 0;
+
+		document.getElementById('score').innerText = `Score: ${score}/${questions.length}`;
+		document.getElementById('accuracy').innerText = `Accuracy: ${accuracy}%`;
+
+		let subjectHTML = '';
+
+		for (let sub in subjectStats) {
+			let s = subjectStats[sub];
+			let percent = ((s.correct / s.total) * 100).toFixed(2);
+
+			subjectHTML += `
+        <div class="bg-gray-200 p-2 rounded mt-2">
+          ${sub} → ${s.correct}/${s.total} (${percent}%)
+        </div>
+      `;
+		}
+
+		document.getElementById('subjects').innerHTML = subjectHTML;
+	</script>
+
+</body>
+</html>
